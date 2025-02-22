@@ -1,0 +1,174 @@
+definitions:
+  entity.Link:
+    properties:
+      clicks:
+        type: integer
+      createdAt:
+        type: string
+      expiresAt:
+        type: string
+      id:
+        type: string
+      title:
+        type: string
+      url:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /links:
+    post:
+      consumes:
+      - application/json
+      description: Create a new link with title, URL, and expiry date.
+      parameters:
+      - description: Link Data
+        in: body
+        name: link
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Link'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.Link'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new link
+      tags:
+      - links
+  /links/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete the specified link.
+      parameters:
+      - description: Link ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Link deleted successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a link by ID
+      tags:
+      - links
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a link using its ID.
+      parameters:
+      - description: Link ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Link'
+        "404":
+          description: Link not found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a link by ID
+      tags:
+      - links
+    put:
+      consumes:
+      - application/json
+      description: Update the link’s title, URL, or expiry date.
+      parameters:
+      - description: Link ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated Link Data
+        in: body
+        name: link
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Link'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Link'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update an existing link
+      tags:
+      - links
+  /visit/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Increment the link's click counter and log the visit.
+      parameters:
+      - description: Link ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Link'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Visit a link
+      tags:
+      - links
+swagger: "2.0"

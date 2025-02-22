@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  link-in-bio-service:
+    build:
+      context: .
+      dockerfile: build/Dockerfile
+    container_name: link_in_bio_service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongodb
+    environment:
+      # Environment variables passed to the Go application
+      MONGO_URI: "mongodb://myUser:myPass@mongodb:27017"
+      MONGO_DB: "linkinbio"
+      APP_PORT: "8080"
+    # If you want to load env from a file:
+    # env_file:
+    #   - .env
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: myUser
+      MONGO_INITDB_ROOT_PASSWORD: myPass
+    volumes:
+      - ./data/db:/data/db
