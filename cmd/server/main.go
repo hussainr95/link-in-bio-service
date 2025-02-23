@@ -15,9 +15,20 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	_ "github.com/hussainr95/link-in-bio-service/docs"
-	swaggerFiles "github.com/swaggo/files" // swagger embed files
-	"github.com/swaggo/gin-swagger"        // gin-swagger middleware
+	swaggerFiles "github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 )
+
+// @title Link in Bio API
+// @version 1.0
+// @description API for managing Link in Bio entries.
+// @host localhost:8080
+// @BasePath /
+//
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description "Enter your bearer token in the format: Bearer test"
 
 func main() {
 	// 1. Load configuration.
@@ -26,13 +37,13 @@ func main() {
 	// 2. Connect to MongoDB.
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(cfg.MongoURI))
 	if err != nil {
-		log.Fatal("Failed to connect to MongoDB:", err)
+		log.Fatal("Failed to connect to DB:", err)
 	}
 	defer client.Disconnect(context.Background())
 
-	// Ping MongoDB to verify the connection.
+	// Ping DB to verify the connection.
 	if err := client.Ping(context.Background(), nil); err != nil {
-		log.Fatal("Could not ping MongoDB:", err)
+		log.Fatal("Could not ping DB:", err)
 	}
 
 	db := client.Database(cfg.MongoDBName)
@@ -45,6 +56,7 @@ func main() {
 	linkUsecase := usecase.NewLinkUsecase(linkRepo, visitRepo)
 
 	// 5. Setup Gin router.
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	// Bonus step. Register Swagger route
@@ -56,7 +68,7 @@ func main() {
 
 	// 7. Register link routes.
 	linkHandler := httphandlers.NewLinkHandler(linkUsecase)
-	linkHandler.RegisterRoutes(router)
+	linkHandler.RegisterAPIRoutes(router)
 
 	// 8. Start background cleanup goroutine.
 	go func() {

@@ -1,22 +1,11 @@
-# Makefile for Link in Bio Service
+.PHONY: all test swag-install swag docker-up docker-down
 
-.PHONY: all build test run swag-install swag docker-up docker-down clean
-
-# Default target builds the binary
-all: build
-
-# Build the Go binary
-build:
-	go mod tidy
-	go build -o main ./cmd/server
+# Default target runs tests
+all: test
 
 # Run unit tests with verbose output and coverage report
 test:
 	go test ./... -v -cover
-
-# Run the application locally (without Docker)
-run:
-	go run ./cmd/server/main.go
 
 # Install Swagger tools (swag)
 swag-install:
@@ -33,8 +22,3 @@ docker-up:
 # Stop and remove Docker containers
 docker-down:
 	docker-compose down
-
-# Clean up generated files and binary
-clean:
-	rm -f main
-	rm -rf docs

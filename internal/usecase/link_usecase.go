@@ -28,6 +28,7 @@ func NewLinkUsecase(repo repository.LinkRepository, visitRepo repository.VisitRe
 
 func (u *linkUsecase) CreateLink(ctx context.Context, link *entity.Link) (*entity.Link, error) {
 	link.CreatedAt = time.Now()
+	link.ExpiresAt = time.Now().Add(2 * time.Minute)
 	link.Clicks = 0 // initialize clicks to zero
 	return u.repo.Create(ctx, link)
 }

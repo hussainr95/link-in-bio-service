@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/links": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new link with title, URL, and expiry date.",
                 "consumes": [
                     "application/json"
@@ -69,6 +74,11 @@ const docTemplate = `{
         },
         "/links/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieve a link using its ID.",
                 "consumes": [
                     "application/json"
@@ -108,6 +118,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update the link’s title, URL, or expiry date.",
                 "consumes": [
                     "application/json"
@@ -165,6 +180,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete the specified link.",
                 "consumes": [
                     "application/json"
@@ -209,6 +229,11 @@ const docTemplate = `{
         },
         "/visit/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Increment the link's click counter and log the visit.",
                 "consumes": [
                     "application/json"
@@ -273,17 +298,25 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "\"Enter your bearer token in the format: Bearer test\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "localhost:8080",
+	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Link in Bio API",
+	Description:      "API for managing Link in Bio entries.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

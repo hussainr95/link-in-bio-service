@@ -1,11 +1,21 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "API for managing Link in Bio entries.",
+        "title": "Link in Bio API",
+        "contact": {},
+        "version": "1.0"
     },
+    "host": "localhost:8080",
+    "basePath": "/",
     "paths": {
         "/links": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new link with title, URL, and expiry date.",
                 "consumes": [
                     "application/json"
@@ -58,6 +68,11 @@
         },
         "/links/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieve a link using its ID.",
                 "consumes": [
                     "application/json"
@@ -97,6 +112,11 @@
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update the link’s title, URL, or expiry date.",
                 "consumes": [
                     "application/json"
@@ -154,6 +174,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete the specified link.",
                 "consumes": [
                     "application/json"
@@ -198,6 +223,11 @@
         },
         "/visit/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Increment the link's click counter and log the visit.",
                 "consumes": [
                     "application/json"
@@ -261,6 +291,14 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "\"Enter your bearer token in the format: Bearer test\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

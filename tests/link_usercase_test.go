@@ -17,7 +17,7 @@ type mockLinkRepository struct {
 	nextID int
 }
 
-func newFakeLinkRepository() *mockLinkRepository {
+func newMockLinkRepository() *mockLinkRepository {
 	return &mockLinkRepository{
 		links:  make(map[string]*entity.Link),
 		nextID: 1,
@@ -75,17 +75,17 @@ func (r *mockLinkRepository) DeleteExpired(ctx context.Context) error {
 	return nil
 }
 
-type fakeVisitRepository struct {
+type mockVisitRepository struct {
 	visits []*entity.Visit
 }
 
-func newFakeVisitRepository() *fakeVisitRepository {
-	return &fakeVisitRepository{
+func newMockVisitRepository() *mockVisitRepository {
+	return &mockVisitRepository{
 		visits: make([]*entity.Visit, 0),
 	}
 }
 
-func (r *fakeVisitRepository) Create(ctx context.Context, visit *entity.Visit) (*entity.Visit, error) {
+func (r *mockVisitRepository) Create(ctx context.Context, visit *entity.Visit) (*entity.Visit, error) {
 	r.visits = append(r.visits, visit)
 	return visit, nil
 }
@@ -94,8 +94,8 @@ func (r *fakeVisitRepository) Create(ctx context.Context, visit *entity.Visit) (
 
 func TestCreateLink(t *testing.T) {
 	ctx := context.Background()
-	linkRepo := newFakeLinkRepository()
-	visitRepo := newFakeVisitRepository()
+	linkRepo := newMockLinkRepository()
+	visitRepo := newMockVisitRepository()
 	uc := usecase.NewLinkUsecase(linkRepo, visitRepo)
 
 	link := &entity.Link{
@@ -109,12 +109,15 @@ func TestCreateLink(t *testing.T) {
 	assert.NotEmpty(t, createdLink.ID)
 	assert.Equal(t, 0, createdLink.Clicks)
 	assert.False(t, createdLink.CreatedAt.IsZero())
+	expectedExpiry := createdLink.CreatedAt.Add(2 * time.Minute)
+	diff := createdLink.ExpiresAt.Sub(expectedExpiry)
+	assert.LessOrEqual(t, diff.Abs().Seconds(), 1.0, "ExpiresAt should be 2 minutes after CreatedAt")
 }
 
 func TestGetLink(t *testing.T) {
 	ctx := context.Background()
-	linkRepo := newFakeLinkRepository()
-	visitRepo := newFakeVisitRepository()
+	linkRepo := newMockLinkRepository()
+	visitRepo := newMockVisitRepository()
 	uc := usecase.NewLinkUsecase(linkRepo, visitRepo)
 
 	link := &entity.Link{
@@ -131,8 +134,8 @@ func TestGetLink(t *testing.T) {
 
 func TestUpdateLink(t *testing.T) {
 	ctx := context.Background()
-	linkRepo := newFakeLinkRepository()
-	visitRepo := newFakeVisitRepository()
+	linkRepo := newMockLinkRepository()
+	visitRepo := newMockVisitRepository()
 	uc := usecase.NewLinkUsecase(linkRepo, visitRepo)
 
 	link := &entity.Link{
@@ -154,8 +157,8 @@ func TestUpdateLink(t *testing.T) {
 
 func TestDeleteLink(t *testing.T) {
 	ctx := context.Background()
-	linkRepo := newFakeLinkRepository()
-	visitRepo := newFakeVisitRepository()
+	linkRepo := newMockLinkRepository()
+	visitRepo := newMockVisitRepository()
 	uc := usecase.NewLinkUsecase(linkRepo, visitRepo)
 
 	link := &entity.Link{
@@ -174,8 +177,8 @@ func TestDeleteLink(t *testing.T) {
 
 func TestVisitLink(t *testing.T) {
 	ctx := context.Background()
-	linkRepo := newFakeLinkRepository()
-	visitRepo := newFakeVisitRepository()
+	linkRepo := newMockLinkRepository()
+	visitRepo := newMockVisitRepository()
 	uc := usecase.NewLinkUsecase(linkRepo, visitRepo)
 
 	link := &entity.Link{
@@ -193,35 +196,35 @@ func TestVisitLink(t *testing.T) {
 
 func TestCleanupExpiredLinks(t *testing.T) {
 	ctx := context.Background()
-	linkRepo := newFakeLinkRepository()
-	visitRepo := newFakeVisitRepository()
+	linkRepo := newMockLinkRepository()
+	visitRepo := newMockVisitRepository()
 	uc := usecase.NewLinkUsecase(linkRepo, visitRepo)
 
-	// Create an expired link
+	// Create an "expired" link using CreateLink, then override ExpiresAt.
 	expiredLink := &entity.Link{
-		Title:     "Expired Link",
-		URL:       "http://expired.com",
-		ExpiresAt: time.Now().Add(-1 * time.Hour),
+		Title: "Expired Link",
+		URL:   "http://expired.com",
 	}
 	createdExpired, _ := uc.CreateLink(ctx, expiredLink)
+	// Overwrite ExpiresAt to simulate expiration (1 minute in the past)
+	createdExpired.ExpiresAt = time.Now().Add(-1 * time.Minute)
 
-	// Create a valid link
+	// Create a valid link; CreateLink sets ExpiresAt to 2 minutes from creation.
 	validLink := &entity.Link{
-		Title:     "Valid Link",
-		URL:       "http://valid.com",
-		ExpiresAt: time.Now().Add(24 * time.Hour),
+		Title: "Valid Link",
+		URL:   "http://valid.com",
 	}
 	validCreated, _ := uc.CreateLink(ctx, validLink)
 
-	// Run cleanup
+	// Run cleanup: this should remove links where ExpiresAt is less than now.
 	err := uc.CleanupExpiredLinks(ctx)
 	assert.NoError(t, err)
 
-	// The expired link should be removed
+	// The expired link should be removed.
 	_, err = uc.GetLink(ctx, createdExpired.ID)
 	assert.Error(t, err)
 
-	// The valid link should still exist
+	// The valid link should still exist.
 	fetchedValid, err := uc.GetLink(ctx, validCreated.ID)
 	assert.NoError(t, err)
 	assert.Equal(t, "Valid Link", fetchedValid.Title)

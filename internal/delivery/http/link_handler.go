@@ -16,6 +16,15 @@ func NewLinkHandler(u usecase.LinkUsecase) *LinkHandler {
 	return &LinkHandler{usecase: u}
 }
 
+// RegisterAPIRoutes sets up the routing for link-related endpoints
+func (h *LinkHandler) RegisterAPIRoutes(router *gin.Engine) {
+	router.POST("/links", h.CreateLink)
+	router.GET("/links/:id", h.GetLink)
+	router.PUT("/links/:id", h.UpdateLink)
+	router.DELETE("/links/:id", h.DeleteLink)
+	router.GET("/visit/:id", h.VisitLink)
+}
+
 // CreateLink handles POST /links
 // CreateLink godoc
 // @Summary Create a new link
@@ -27,6 +36,7 @@ func NewLinkHandler(u usecase.LinkUsecase) *LinkHandler {
 // @Success 201 {object} entity.Link
 // @Failure 400 {object} map[string]string "Bad Request"
 // @Failure 500 {object} map[string]string "Internal Server Error"
+// @Security BearerAuth
 // @Router /links [post]
 func (h *LinkHandler) CreateLink(c *gin.Context) {
 	var link entity.Link
@@ -54,6 +64,7 @@ func (h *LinkHandler) CreateLink(c *gin.Context) {
 // @Param id path string true "Link ID"
 // @Success 200 {object} entity.Link
 // @Failure 404 {object} map[string]string "Link not found"
+// @Security BearerAuth
 // @Router /links/{id} [get]
 func (h *LinkHandler) GetLink(c *gin.Context) {
 	id := c.Param("id")
@@ -77,6 +88,7 @@ func (h *LinkHandler) GetLink(c *gin.Context) {
 // @Success 200 {object} entity.Link
 // @Failure 400 {object} map[string]string "Bad Request"
 // @Failure 500 {object} map[string]string "Internal Server Error"
+// @Security BearerAuth
 // @Router /links/{id} [put]
 func (h *LinkHandler) UpdateLink(c *gin.Context) {
 	id := c.Param("id")
@@ -106,6 +118,7 @@ func (h *LinkHandler) UpdateLink(c *gin.Context) {
 // @Param id path string true "Link ID"
 // @Success 200 {object} map[string]string "Link deleted successfully"
 // @Failure 500 {object} map[string]string "Internal Server Error"
+// @Security BearerAuth
 // @Router /links/{id} [delete]
 func (h *LinkHandler) DeleteLink(c *gin.Context) {
 	id := c.Param("id")
@@ -126,6 +139,7 @@ func (h *LinkHandler) DeleteLink(c *gin.Context) {
 // @Param id path string true "Link ID"
 // @Success 200 {object} entity.Link
 // @Failure 500 {object} map[string]string "Internal Server Error"
+// @Security BearerAuth
 // @Router /visit/{id} [get]
 func (h *LinkHandler) VisitLink(c *gin.Context) {
 	id := c.Param("id")
@@ -135,13 +149,4 @@ func (h *LinkHandler) VisitLink(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, link)
-}
-
-// RegisterRoutes sets up the routing for link-related endpoints
-func (h *LinkHandler) RegisterRoutes(router *gin.Engine) {
-	router.POST("/links", h.CreateLink)
-	router.GET("/links/:id", h.GetLink)
-	router.PUT("/links/:id", h.UpdateLink)
-	router.DELETE("/links/:id", h.DeleteLink)
-	router.GET("/visit/:id", h.VisitLink)
 }

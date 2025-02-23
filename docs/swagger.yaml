@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   entity.Link:
     properties:
@@ -14,8 +15,12 @@ definitions:
       url:
         type: string
     type: object
+host: localhost:8080
 info:
   contact: {}
+  description: API for managing Link in Bio entries.
+  title: Link in Bio API
+  version: "1.0"
 paths:
   /links:
     post:
@@ -48,6 +53,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create a new link
       tags:
       - links
@@ -77,6 +84,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete a link by ID
       tags:
       - links
@@ -103,6 +112,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get a link by ID
       tags:
       - links
@@ -141,6 +152,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update an existing link
       tags:
       - links
@@ -168,7 +181,15 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Visit a link
       tags:
       - links
+securityDefinitions:
+  BearerAuth:
+    description: '"Enter your bearer token in the format: Bearer test"'
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

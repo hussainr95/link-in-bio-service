@@ -19,8 +19,8 @@ import (
 // Reuse the same mock repositories from link_usecase_test.go
 
 func setupRouter() (*gin.Engine, usecase.LinkUsecase) {
-	linkRepo := newFakeLinkRepository()
-	visitRepo := newFakeVisitRepository()
+	linkRepo := newMockLinkRepository()
+	visitRepo := newMockVisitRepository()
 	uc := usecase.NewLinkUsecase(linkRepo, visitRepo)
 	handler := httphandler.NewLinkHandler(uc)
 
