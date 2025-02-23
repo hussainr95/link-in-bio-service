@@ -25,4 +25,4 @@ jobs:
         run: go test ./... -v -cover
 
       - name: Build Docker image
-        run: docker build -t hussainr95/link-in-bio-service .
+        run: docker build -t hussainr95/link-in-bio-service -f build/Dockerfile .
